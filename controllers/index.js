@@ -1,13 +1,14 @@
 const { reportConsolidationService } = require("../services");
 
 const reportConsolidationController = async (req, res) => {
-  const { filename } = req?.file;
+  // const { filename } = req?.file;
+  const { url } = req.body;
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
+    // if (!req.file) {
+    //   return res.status(400).json({ error: "No file uploaded" });
+    // }
 
-    await reportConsolidationService(filename);
+    await reportConsolidationService(url);
 
     res.send({
       status: 200,
