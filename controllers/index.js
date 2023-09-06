@@ -7,21 +7,17 @@ const reportConsolidationController = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    const data = await reportConsolidationService(filename);
-    
+    await reportConsolidationService(filename);
 
     res.send({
       status: 200,
-      message: "Report is Here!",
-      length: data.length,
-      data: data
+      message: "Report is Mailed!",
     });
   } catch (error) {
+    console.log("error", error);
     res.send({ status: 400, message: error });
   }
 };
-
-
 
 module.exports = {
   reportConsolidationController,

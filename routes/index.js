@@ -6,10 +6,9 @@ const { reportConsolidationController } = require("../controllers");
 const router = express.Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads"); // Save files to the "uploads" folder
+    cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    // Generate a unique filename for the uploaded CSV file
     const timestamp = Date.now();
     const filename = `${timestamp}-${file.originalname}`;
     cb(null, filename);
@@ -17,7 +16,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// router.get("/", reportConsolidationController);
 
 router.post( "/upload", upload.single('csvFile'), reportConsolidationController);
 
