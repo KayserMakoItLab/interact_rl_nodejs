@@ -5,7 +5,7 @@ const csv = require("fast-csv");
 const parseCsvData = async () => {
   return new Promise((resolve, reject) => {
     const results = [];
-    fs.createReadStream(path.resolve(__dirname, "../uploads", "myfile.csv"))
+    fs.createReadStream(path.resolve(__dirname, "./uploads", "myfile.csv"))
       .pipe(csv.parse({ headers: true }))
       .on("error", (error) => {
         reject(error);
