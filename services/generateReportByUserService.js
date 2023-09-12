@@ -44,16 +44,20 @@ const generateReportByUserService = async ({
     console.log("report", report);
 
     const result = report.reduce((agg, each) => {
-        // if(!agg[each.UserName]){
-
-        // }
+        if(!agg[each.UserName]){
+            const { UserName } = each;
+            agg[each.UserName] = {
+              userTrackedTime: 0,
+              totalTracked: 0,
+              entries: 0,
+            };
+        }
       if (!agg[each.ProjectId]) {
         const { ProjectName, CustomerName, ...others } = each;
         agg[each.ProjectId] = {
           ProjectName,
           CustomerName,
-          totalTracked: 0,
-          entries: 0,
+          
           task: {},
         };
       }

@@ -1,15 +1,20 @@
 const { generateReportByProjectService, generateReportByUserService } = require("../services");
+const { getReportDetails } = require("../services/apiService");
 
 
 const reportConsolidationController = async (req, res) => {
-  const {url, type} = req?.body;
+  const {startDate, endDate, type} = req?.body;
   try {
     let data;
 
-    if(type === 'project'){
-      data = await generateReportByProjectService(url);
-    } else if(type === 'user'){
-      data = await generateReportByUserService(url);
+    const response = await getReportDetails(startDate, endDate, type);
+
+    if (response && type === "project") {
+      data = await generateReportByProjectService(response.downloadUrl);
+    } else if (response && type === "user") {
+      data = await generateReportByUserService(response.downloadUrl);
+    } else {
+      res.send({ status: 400, message: 'something went wrong' });
     }
 
     res.send({
