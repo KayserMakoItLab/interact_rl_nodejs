@@ -1,14 +1,16 @@
-const { reportConsolidationService } = require("../services");
-const {
-  generateConsolidateReportService,
-} = require("../services/generateReportService");
+const { generateReportByProjectService, generateReportByUserService } = require("../services");
+
 
 const reportConsolidationController = async (req, res) => {
+  const {url, type} = req?.body;
   try {
+    let data;
 
-    // await reportConsolidationService(url);
-
-    const data = await generateConsolidateReportService(req?.body);
+    if(type === 'project'){
+      data = await generateReportByProjectService(url);
+    } else if(type === 'user'){
+      data = await generateReportByUserService(url);
+    }
 
     res.send({
       status: 200,
