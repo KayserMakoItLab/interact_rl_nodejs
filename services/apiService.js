@@ -47,6 +47,14 @@ const getTaskDetailsById = async (taskId) => {
 };
 
 const getReportDetails = async(startDate, endDate, type) => {
+    console.log(
+      "==>",
+      `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(
+        endDate
+      ).format("YYYY-MM-DD")}&match&startDate=${moment(startDate).format(
+        "YYYY-MM-DD"
+      )}`
+    );
     const data = await axios
       .get(
         `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(
