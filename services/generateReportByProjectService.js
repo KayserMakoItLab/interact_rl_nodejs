@@ -107,7 +107,7 @@ const generateReportByProjectService = async (url) => {
     workbook.xlsx
       .writeFile("output.xlsx")
       .then(async () => {
-        // await sendMail();
+        await sendMail();
       })
       .catch((error) => {
         console.error("Error:", error);

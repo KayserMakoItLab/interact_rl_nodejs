@@ -9,6 +9,11 @@ const reportConsolidationController = async (req, res) => {
 
     const response = await getReportDetails(startDate, endDate, type);
 
+    res.send({
+      status: 200,
+      message: "Process Started!",
+    });
+
     if (response && type === "project") {
       data = await generateReportByProjectService(response.downloadUrl);
     } else if (response && type === "user") {
