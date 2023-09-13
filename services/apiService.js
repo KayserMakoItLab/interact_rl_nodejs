@@ -56,9 +56,7 @@ const getReportDetails = async(startDate, endDate, type) => {
         )}`,
         {
           headers: {
-            "api-key": process.env.ROCKLANE_API_KEY,
-            groupBy: type.toUpperCase(),
-            match:'all'
+            "api-key": process.env.ROCKLANE_API_KEY
           },
         }
       )
