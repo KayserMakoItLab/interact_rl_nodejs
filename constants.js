@@ -19,6 +19,8 @@ const headers = [
   "",
   "",
   "",
+  "",
+  "",
   "TIME RECORD",
 ];
 

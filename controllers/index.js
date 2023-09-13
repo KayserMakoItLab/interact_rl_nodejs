@@ -21,12 +21,6 @@ const reportConsolidationController = async (req, res) => {
     } else {
       res.send({ status: 400, message: 'something went wrong' });
     }
-
-    res.send({
-      status: 200,
-      message: "Report is Mailed!",
-      data: data
-    });
   } catch (error) {
     console.log("error", error);
     res.send({ status: 400, message: error });

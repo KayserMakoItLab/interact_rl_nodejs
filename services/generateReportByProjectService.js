@@ -16,7 +16,7 @@ const generateReportByProjectService = async (url) => {
     worksheet.addRow(subHeaders);
     worksheet.mergeCells("B1:L1");
     worksheet.mergeCells("M1:V1");
-    worksheet.mergeCells("W1:AB1");
+    worksheet.mergeCells("W1:Z1");
 
     await downloadFile(
       url,
@@ -87,7 +87,7 @@ const generateReportByProjectService = async (url) => {
             completed:
               taskInfo?.status?.label === "Completed" ? "TRUE" : "FALSE",
             timeAllocated: entry.Effort,
-            taskTotalTimeSpent: taskInfo?.effort / 6,
+            taskTotalTimeSpent: taskInfo?.effort ? taskInfo?.effort / 6 : 0,
             taskFilteredTimeSpent: entries.total,
             timeRecords: entry.Notes,
             timer: entry.Date,

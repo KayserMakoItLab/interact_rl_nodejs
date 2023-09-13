@@ -18,7 +18,7 @@ const generateReportByUserService = async ({
     worksheet.addRow(subHeaders);
     worksheet.mergeCells("B1:L1");
     worksheet.mergeCells("M1:V1");
-    worksheet.mergeCells("W1:AB1");
+    worksheet.mergeCells("W1:Z1");
 
     // await downloadFile(
     //   url,
