@@ -6,6 +6,7 @@ const { downloadFile } = require("./downloadS3File");
 const { headers, subHeaders } = require("../constants");
 const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { parseCsvData } = require("../utils");
+const { sendMail } = require("./mail");
 
 const generateReportByProjectService = async (url) => {
   try {
