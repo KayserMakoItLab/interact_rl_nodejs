@@ -14,6 +14,8 @@ const reportConsolidationController = async (req, res) => {
       message: "Process Started!",
     });
 
+    console.log({response});
+
     if (response && type === "project") {
       data = await generateReportByProjectService(response.downloadUrl);
     } else if (response && type === "user") {
