@@ -10,7 +10,11 @@ const reportConsolidationController = async (req, res) => {
 
     const response = await getReportDetails(startDate, endDate, type);
 
-    res.send({
+    // res.send({
+    //   status: 200,
+    //   message: "Process Started!",
+    // });
+    res.status(200).json({
       status: 200,
       message: "Process Started!",
     });
