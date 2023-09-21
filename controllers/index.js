@@ -24,7 +24,8 @@ const reportConsolidationController = async (req, res) => {
     } else if (response && type === "category") {
       data = await generateReportByCategoryService(response.downloadUrl);
     } else {
-      res.send({ status: 400, message: "something went wrong" });
+      // res.send({ status: 400, message: "something went wrong" });
+      console.log({ status: 400, message: "something went wrong" });
     }
   } catch (error) {
     console.log("error", error);
