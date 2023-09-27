@@ -95,7 +95,6 @@ console.log('url', url);
             if (i % 100 == 0) {
               await new Promise((res, rej) => setTimeout(() => res(), 1000));
             }
-
             const reportRow = {
               groupBy: user,
               number: projectId,
@@ -108,7 +107,7 @@ console.log('url', url);
               projectDue: projectInfo?.dueDate,
               taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
               projectTotalTimeSpent: projectInfo?.metrics?.trackedHours,
-              projectFilteredTimeSpent: value?.totalTracked,
+              projectFilteredTimeSpent: item?.userTrackedTime,
               order: taskInfo?.taskId,
               taskName: taskInfo?.taskName,
               contacts: taskInfo?.assignee?.users[0]?.userName,
