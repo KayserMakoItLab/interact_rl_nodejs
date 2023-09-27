@@ -95,13 +95,12 @@ console.log('url', url);
             if (i % 100 == 0) {
               await new Promise((res, rej) => setTimeout(() => res(), 1000));
             }
-            let newUser = "";
 
             const reportRow = {
-              groupBy: newUser === user ? "" : user,
+              groupBy: user,
               number: projectId,
               title: projectInfo?.projectName,
-              category: "",
+              category: entry.CategoryName,
               projectClient: projectInfo?.createdBy?.firstName,
               customStatus: projectInfo?.status,
               manager: projectInfo?.createdBy?.firstName,
@@ -119,7 +118,10 @@ console.log('url', url);
               completed:
                 taskInfo?.status?.label === "Completed" ? "TRUE" : "FALSE",
               timeAllocated: entry.Effort,
-              taskTotalTimeSpent: taskInfo?.effort ? taskInfo?.effort / 6 : 0,
+              taskTotalTimeSpent:
+                taskInfo?.effort && taskInfo?.effort > 0
+                  ? taskInfo?.effort / 60
+                  : 0,
               taskFilteredTimeSpent: entries.total,
               timeRecords: entry.Notes,
               timer: entry.Date,
@@ -129,8 +131,6 @@ console.log('url', url);
 
             console.log("reportRow", reportRow);
             worksheet.addRow(Object.values(reportRow));
-
-            newUser = user;
           }
         }
       }
