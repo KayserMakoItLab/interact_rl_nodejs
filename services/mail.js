@@ -13,7 +13,11 @@ const sendMail = async () => {
 
   const mailOptions = {
     from: process.env.EMAIL_FROM,
-    to: ["kayser@makoitlab.com", "raja@geekfactory.tech"],
+    to: [
+      "kayser@makoitlab.com",
+      "marimuthu.gouthaman@makoitlab.com ",
+      "raja@geekfactory.tech",
+    ],
     subject: "Consolidated Report",
     text: "Hi, Download your consolidated report below",
     attachments: [
