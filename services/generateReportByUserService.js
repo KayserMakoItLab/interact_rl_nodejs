@@ -6,6 +6,7 @@ const { downloadFile } = require("./downloadS3File");
 const { headers, subHeaders } = require("../constants");
 const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { sendMail } = require("./mail");
+const moment = require("moment");
 
 const generateReportByUserService = async (
   url
@@ -114,8 +115,9 @@ console.log('url', url);
               status: taskInfo?.status?.label,
               taskStart: taskInfo?.startDate,
               taskDue: taskInfo?.dueDate,
-              completed:
-                taskInfo?.status?.label === "Completed" ? "TRUE" : "FALSE",
+              completed: moment(new Date(taskInfo?.completedAt)).format(
+                "YYYY-MM-DD"
+              ),
               timeAllocated: entry.Effort,
               taskTotalTimeSpent:
                 taskInfo?.effort && taskInfo?.effort > 0

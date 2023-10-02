@@ -7,6 +7,7 @@ const { headers, subHeaders } = require("../constants");
 const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { parseCsvData } = require("../utils");
 const { sendMail } = require("./mail");
+const moment = require("moment");
 
 const generateReportByProjectService = async (url) => {
   try {
@@ -64,6 +65,10 @@ const generateReportByProjectService = async (url) => {
             await new Promise((res, rej) => setTimeout(() => res(), 1000));
           }
 
+          const completedDate = moment(new Date(taskInfo?.completedAt)).format(
+            "YYYY-MM-DD"
+          );
+
           const reportRow = {
             groupBy: projectInfo?.projectName,
             number: projectId,
@@ -83,8 +88,7 @@ const generateReportByProjectService = async (url) => {
             status: taskInfo?.status?.label,
             taskStart: taskInfo?.startDate,
             taskDue: taskInfo?.dueDate,
-            completed:
-              taskInfo?.status?.label === "Completed" ? "TRUE" : "FALSE",
+            completed: completedDate === "Invalid date" ? "" : completedDate,
             timeAllocated: entry.Effort,
             taskTotalTimeSpent:
               taskInfo?.effort && taskInfo?.effort > 0

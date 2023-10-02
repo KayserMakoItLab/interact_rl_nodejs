@@ -6,6 +6,7 @@ const { downloadFile } = require("./downloadS3File");
 const { headers, subHeaders } = require("../constants");
 const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { sendMail } = require("./mail");
+const moment = require("moment");
 
 const generateReportByCategoryService = async (url) => {
   try {
@@ -93,6 +94,10 @@ const generateReportByCategoryService = async (url) => {
               await new Promise((res, rej) => setTimeout(() => res(), 1000));
             }
 
+            const completedDate = moment(
+              new Date(taskInfo?.completedAt)
+            ).format("YYYY-MM-DD");
+
             const reportRow = {
               groupBy: category,
               number: projectId,
@@ -112,12 +117,12 @@ const generateReportByCategoryService = async (url) => {
               status: taskInfo?.status?.label,
               taskStart: taskInfo?.startDate,
               taskDue: taskInfo?.dueDate,
-              completed:
-                taskInfo?.status?.label === "Completed" ? "TRUE" : "FALSE",
+              completed: completedDate === "Invalid date" ? "" : completedDate,
               timeAllocated: entry.Effort,
-              taskTotalTimeSpent: taskInfo?.effort && taskInfo?.effort > 0
-                ? taskInfo?.effort / 60
-                : 0,
+              taskTotalTimeSpent:
+                taskInfo?.effort && taskInfo?.effort > 0
+                  ? taskInfo?.effort / 60
+                  : 0,
               taskFilteredTimeSpent: entries.total,
               timeRecords: entry.Notes,
               timer: entry.Date,
