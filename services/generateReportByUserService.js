@@ -96,6 +96,9 @@ console.log('url', url);
             if (i % 100 == 0) {
               await new Promise((res, rej) => setTimeout(() => res(), 1000));
             }
+            const completedDate = moment(
+              new Date(taskInfo?.completedAt)
+            ).format("YYYY-MM-DD");
             const reportRow = {
               groupBy: user,
               number: projectId,
@@ -115,9 +118,7 @@ console.log('url', url);
               status: taskInfo?.status?.label,
               taskStart: taskInfo?.startDate,
               taskDue: taskInfo?.dueDate,
-              completed: moment(new Date(taskInfo?.completedAt)).format(
-                "YYYY-MM-DD"
-              ),
+              completed: completedDate === "Invalid date" ? "" : completedDate,
               timeAllocated: entry.Effort,
               taskTotalTimeSpent:
                 taskInfo?.effort && taskInfo?.effort > 0
