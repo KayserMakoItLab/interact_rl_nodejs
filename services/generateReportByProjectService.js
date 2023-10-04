@@ -27,16 +27,16 @@ const generateReportByProjectService = async (url) => {
     const report = await parseCsvData();
 
     const result = report.reduce((agg, each) => {
-      if (!agg[each.ProjectId]) {
-        const { ProjectName, CustomerName, ...others } = each;
-        agg[each.ProjectId] = {
-          ProjectName,
-          CustomerName,
-          totalTracked: 0,
-          entries: 0,
-          task: {},
-        };
-      }
+        if (!agg[each.ProjectId]) {
+          const { ProjectName, CustomerName, ...others } = each;
+          agg[each.ProjectId] = {
+            ProjectName,
+            CustomerName,
+            totalTracked: 0,
+            entries: 0,
+            task: {},
+          };
+        }
       agg[each.ProjectId].totalTracked =
         agg[each.ProjectId].totalTracked + +each.TrackedTime;
       agg[each.ProjectId].entries = agg[each.ProjectId].entries + 1;
@@ -61,48 +61,50 @@ const generateReportByProjectService = async (url) => {
       for (const [taskId, entries] of Object.entries(value.task)) {
         const taskInfo = await getTaskDetailsById(taskId);
         for (const entry of entries.data) {
-          if (i % 100 == 0) {
-            await new Promise((res, rej) => setTimeout(() => res(), 1000));
+          if (entry?.ProjectId !== "" && entry?.Billable === "true") {
+            if (i % 100 == 0) {
+              await new Promise((res, rej) => setTimeout(() => res(), 1000));
+            }
+
+            const completedDate = moment(
+              new Date(taskInfo?.completedAt)
+            ).format("YYYY-MM-DD");
+
+            const reportRow = {
+              groupBy: projectInfo?.projectName,
+              number: projectId,
+              title: projectInfo?.projectName,
+              category: entry.CategoryName,
+              projectClient: projectInfo?.createdBy?.firstName,
+              customStatus: projectInfo?.status,
+              manager: projectInfo?.createdBy?.firstName,
+              projectStart: projectInfo?.startDate,
+              projectDue: projectInfo?.dueDate,
+              taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
+              projectTotalTimeSpent: projectInfo?.metrics?.trackedHours,
+              projectFilteredTimeSpent: value?.totalTracked,
+              order: taskInfo?.taskId,
+              taskName: taskInfo?.taskName,
+              contacts: taskInfo?.assignee?.users[0]?.userName,
+              status: taskInfo?.status?.label,
+              taskStart: taskInfo?.startDate,
+              taskDue: taskInfo?.dueDate,
+              completed: completedDate === "Invalid date" ? "" : completedDate,
+              timeAllocated: entry.Effort,
+              taskTotalTimeSpent:
+                taskInfo?.effort && taskInfo?.effort > 0
+                  ? taskInfo?.effort / 60
+                  : 0,
+              taskFilteredTimeSpent: entries.total,
+              timeRecords: entry.Notes,
+              timer: entry.Date,
+              staff: entry.UserName,
+              timeSpent: entry.TrackedTime,
+            };
+
+            console.log("reportRow", reportRow);
+            worksheet.addRow(Object.values(reportRow));
           }
-
-          const completedDate = moment(new Date(taskInfo?.completedAt)).format(
-            "YYYY-MM-DD"
-          );
-
-          const reportRow = {
-            groupBy: projectInfo?.projectName,
-            number: projectId,
-            title: projectInfo?.projectName,
-            category: entry.CategoryName,
-            projectClient: projectInfo?.createdBy?.firstName,
-            customStatus: projectInfo?.status,
-            manager: projectInfo?.createdBy?.firstName,
-            projectStart: projectInfo?.startDate,
-            projectDue: projectInfo?.dueDate,
-            taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
-            projectTotalTimeSpent: projectInfo?.metrics?.trackedHours,
-            projectFilteredTimeSpent: value?.totalTracked,
-            order: taskInfo?.taskId,
-            taskName: taskInfo?.taskName,
-            contacts: taskInfo?.assignee?.users[0]?.userName,
-            status: taskInfo?.status?.label,
-            taskStart: taskInfo?.startDate,
-            taskDue: taskInfo?.dueDate,
-            completed: completedDate === "Invalid date" ? "" : completedDate,
-            timeAllocated: entry.Effort,
-            taskTotalTimeSpent:
-              taskInfo?.effort && taskInfo?.effort > 0
-                ? taskInfo?.effort / 60
-                : 0,
-            taskFilteredTimeSpent: entries.total,
-            timeRecords: entry.Notes,
-            timer: entry.Date,
-            staff: entry.UserName,
-            timeSpent: entry.TrackedTime,
-          };
-
-          console.log("reportRow", reportRow);
-          worksheet.addRow(Object.values(reportRow));
         }
       }
     }
