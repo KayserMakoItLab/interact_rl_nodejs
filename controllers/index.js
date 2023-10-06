@@ -1,19 +1,25 @@
 const { generateReportByProjectService, generateReportByUserService } = require("../services");
 const { getReportDetails } = require("../services/apiService");
 const { generateReportByCategoryService } = require("../services/generateReportByCategoryService");
+const fs = require("fs");
+const path = require("path");
 
 
 const reportConsolidationController = async (req, res) => {
   const {startDate, endDate, type} = req?.body;
+  const folderName = path.resolve(__dirname, "../uploads", "myfile.csv");
   try {
     let data;
 
-    const response = await getReportDetails(startDate, endDate, type);
+    console.log("folderName", folderName);
+    if (fs.existsSync(folderName)) {
+      return res.status(200).json({
+        status: 200,
+        message: "Already a process is running!",
+      });
+    }
 
-    // res.send({
-    //   status: 200,
-    //   message: "Process Started!",
-    // });
+    const response = await getReportDetails(startDate, endDate, type);
     
     res.status(200).json({
       status: 200,

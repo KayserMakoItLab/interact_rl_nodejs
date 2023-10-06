@@ -23,7 +23,7 @@ const generateReportByCategoryService = async (url) => {
       path.resolve(__dirname, "../uploads", "myfile.csv")
     );
 
-    const report = await new Promise((resolve, reject) => {
+    const generatedReport = await new Promise((resolve, reject) => {
       const results = [];
       return fs
         .createReadStream(path.resolve(__dirname, "../uploads", "myfile.csv"))
@@ -39,44 +39,71 @@ const generateReportByCategoryService = async (url) => {
         });
     });
 
-    const result = report.reduce((agg, each) => {
-      if (!agg[each.CategoryName]) {
+    // console.log("generatedReport",generatedReport)
+
+    const data = await Promise.all(
+      generatedReport.map(async (result) => {
+        if (
+          (result.Billable === "true" && (result.ProjectId !== "") ||
+          result.ProjectId !== null)
+         ) {
+          const projectInfo = await getProjectDetailsById(result.ProjectId);
+          console.log("projectInfo?.fields", projectInfo?.fields);
+          const categoryValue = await (projectInfo?.fields || []).find(
+            (value) => value?.fieldLabel === "Category"
+          )?.fieldValue;
+          return { catergoryFieldName: categoryValue, ...result }; // Return the categoryValue
+        }
+        return null; // Return null for cases where the condition isn't met
+      })
+    );
+
+
+    console.log("data", data);
+
+    const result = data.reduce((agg, each) => {
+      if (!agg[each.catergoryFieldName]) {
         const { CategoryName } = each;
-        agg[each.CategoryName] = {
+        agg[each.catergoryFieldName] = {
           userTrackedTime: 0,
           totalTracked: 0,
           project: {},
         };
       }
-      agg[each.CategoryName].userTrackedTime =
-        agg[each.CategoryName].userTrackedTime + +each.TrackedTime;
-      agg[each.CategoryName].totalTracked =
-        agg[each.CategoryName].totalTracked + 1;
+      agg[each.catergoryFieldName].userTrackedTime =
+        agg[each.catergoryFieldName].userTrackedTime + +each.TrackedTime;
+      agg[each.catergoryFieldName].totalTracked =
+        agg[each.catergoryFieldName].totalTracked + 1;
 
-      if (!agg[each.CategoryName].project[each.ProjectId]) {
-        agg[each.CategoryName].project[each.ProjectId] = {
+      if (!agg[each.catergoryFieldName].project[each.ProjectId]) {
+        agg[each.catergoryFieldName].project[each.ProjectId] = {
           total: 0,
           entries: 0,
           task: {},
         };
       }
 
-      agg[each.CategoryName].project[each.ProjectId].total =
-        agg[each.CategoryName].project[each.ProjectId].total +
+      agg[each.catergoryFieldName].project[each.ProjectId].total =
+        agg[each.catergoryFieldName].project[each.ProjectId].total +
         +each.TrackedTime;
 
-      if (!agg[each.CategoryName].project[each.ProjectId].task[each.TaskId]) {
-        agg[each.CategoryName].project[each.ProjectId].task[each.TaskId] = {
-          total: 0,
-          data: [],
-        };
+      if (
+        !agg[each.catergoryFieldName].project[each.ProjectId].task[each.TaskId]
+      ) {
+        agg[each.catergoryFieldName].project[each.ProjectId].task[each.TaskId] =
+          {
+            total: 0,
+            data: [],
+          };
       }
 
-      agg[each.CategoryName].project[each.ProjectId].task[each.TaskId].total =
-        agg[each.CategoryName].project[each.ProjectId].task[each.TaskId].total +
-        +each.TrackedTime;
+      agg[each.catergoryFieldName].project[each.ProjectId].task[
+        each.TaskId
+      ].total =
+        agg[each.catergoryFieldName].project[each.ProjectId].task[each.TaskId]
+          .total + +each.TrackedTime;
 
-      agg[each.CategoryName].project[each.ProjectId].task[
+      agg[each.catergoryFieldName].project[each.ProjectId].task[
         each.TaskId
       ].data.push(each);
 
@@ -90,7 +117,12 @@ const generateReportByCategoryService = async (url) => {
         for (const [taskId, entries] of Object.entries(value.task)) {
           const taskInfo = await getTaskDetailsById(taskId);
           for (const entry of entries.data) {
-            if (entry?.ProjectId !== "" && entry?.Billable === "true") {
+            if (
+              entry?.ProjectId !== "" &&
+              entry?.Billable === "true" &&
+              entry?.catergoryFieldName
+              ) {
+              console.log("entry?.catergoryFieldName", entry?.catergoryFieldName);
               if (i % 100 == 0) {
                 await new Promise((res, rej) => setTimeout(() => res(), 1000));
               }
@@ -99,14 +131,24 @@ const generateReportByCategoryService = async (url) => {
                 new Date(taskInfo?.completedAt)
               ).format("YYYY-MM-DD");
 
+              const managerName = projectInfo?.createdBy?.firstName
+                ? projectInfo?.createdBy?.firstName +
+                  " " +
+                  projectInfo?.createdBy?.lastName
+                : "";
+
+              const categoryValue = (projectInfo?.fields || []).find(
+                (value) => value?.fieldLabel === "Category"
+              )?.fieldValue;
+
               const reportRow = {
                 groupBy: category,
                 number: projectId,
                 title: projectInfo?.projectName,
-                category: entry.CategoryName,
-                projectClient: projectInfo?.createdBy?.firstName,
+                category: categoryValue,
+                projectClient: projectInfo?.customer?.companyName,
                 customStatus: projectInfo?.status,
-                manager: projectInfo?.createdBy?.firstName,
+                manager: managerName,
                 projectStart: projectInfo?.startDate,
                 projectDue: projectInfo?.dueDate,
                 taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
@@ -115,7 +157,7 @@ const generateReportByCategoryService = async (url) => {
                 order: taskInfo?.taskId,
                 taskName: taskInfo?.taskName,
                 contacts: taskInfo?.assignee?.users[0]?.userName,
-                status: taskInfo?.status?.label,
+                status: taskInfo?.status,
                 taskStart: taskInfo?.startDate,
                 taskDue: taskInfo?.dueDate,
                 completed:
@@ -150,7 +192,7 @@ const generateReportByCategoryService = async (url) => {
         console.error("Error:", error);
       });
 
-    return report;
+    return data;
   } catch (error) {
     console.error("Error downloading file:", error);
     return error;

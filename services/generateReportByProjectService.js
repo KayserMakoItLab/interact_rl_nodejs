@@ -54,7 +54,7 @@ const generateReportByProjectService = async (url) => {
 
       return agg;
     }, {});
-
+ 
     const i = 0;
     for (const [projectId, value] of Object.entries(result)) {
       const projectInfo = await getProjectDetailsById(projectId);
@@ -70,14 +70,25 @@ const generateReportByProjectService = async (url) => {
               new Date(taskInfo?.completedAt)
             ).format("YYYY-MM-DD");
 
+            const managerName = projectInfo?.createdBy?.firstName
+              ? projectInfo?.createdBy?.firstName +
+                " " +
+                projectInfo?.createdBy?.lastName
+              : "";
+
+            const categoryValue = (projectInfo?.fields || []).find(
+              (value) => value?.fieldLabel === "Category"
+            )?.fieldValue;
+
+
             const reportRow = {
               groupBy: projectInfo?.projectName,
               number: projectId,
-              title: projectInfo?.projectName,
-              category: entry.CategoryName,
-              projectClient: projectInfo?.createdBy?.firstName,
+              title: projectInfo?.projectName, 
+              category: categoryValue,
+              projectClient: projectInfo?.customer?.companyName,
               customStatus: projectInfo?.status,
-              manager: projectInfo?.createdBy?.firstName,
+              manager: managerName,
               projectStart: projectInfo?.startDate,
               projectDue: projectInfo?.dueDate,
               taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
@@ -86,7 +97,7 @@ const generateReportByProjectService = async (url) => {
               order: taskInfo?.taskId,
               taskName: taskInfo?.taskName,
               contacts: taskInfo?.assignee?.users[0]?.userName,
-              status: taskInfo?.status?.label,
+              status: taskInfo?.status,
               taskStart: taskInfo?.startDate,
               taskDue: taskInfo?.dueDate,
               completed: completedDate === "Invalid date" ? "" : completedDate,

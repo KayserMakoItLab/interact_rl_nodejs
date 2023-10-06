@@ -100,14 +100,24 @@ console.log('url', url);
               const completedDate = moment(
                 new Date(taskInfo?.completedAt)
               ).format("YYYY-MM-DD");
+              const managerName = projectInfo?.createdBy?.firstName
+                ? projectInfo?.createdBy?.firstName +
+                  " " +
+                  projectInfo?.createdBy?.lastName
+                : "";
+
+              const categoryValue = (projectInfo?.fields || []).find(
+                (value) => value?.fieldLabel === "Category"
+              )?.fieldValue;
+
               const reportRow = {
                 groupBy: user,
                 number: projectId,
                 title: projectInfo?.projectName,
-                category: entry.CategoryName,
-                projectClient: projectInfo?.createdBy?.firstName,
+                category: categoryValue,
+                projectClient: projectInfo?.customer?.companyName,
                 customStatus: projectInfo?.status,
-                manager: projectInfo?.createdBy?.firstName,
+                manager: managerName,
                 projectStart: projectInfo?.startDate,
                 projectDue: projectInfo?.dueDate,
                 taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
@@ -116,7 +126,7 @@ console.log('url', url);
                 order: taskInfo?.taskId,
                 taskName: taskInfo?.taskName,
                 contacts: taskInfo?.assignee?.users[0]?.userName,
-                status: taskInfo?.status?.label,
+                status: taskInfo?.status,
                 taskStart: taskInfo?.startDate,
                 taskDue: taskInfo?.dueDate,
                 completed:
