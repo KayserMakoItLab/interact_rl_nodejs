@@ -1,42 +1,86 @@
+const { insertValue, getAllReportsData } = require("../db");
 const { generateReportByProjectService, generateReportByUserService } = require("../services");
 const { getReportDetails } = require("../services/apiService");
 const { generateReportByCategoryService } = require("../services/generateReportByCategoryService");
-const fs = require("fs");
-const path = require("path");
+const { uuidv4 } = require("../utils");
 
 
-const reportConsolidationController = async (req, res) => {
-  const {startDate, endDate, type} = req?.body;
-  const folderName = path.resolve(__dirname, "../uploads", "myfile.csv");
-  try {
-    let data;
+let process = "";
 
-    console.log("folderName", folderName);
-    if (fs.existsSync(folderName)) {
-      return res.status(200).json({
-        status: 200,
-        message: "Already a process is running!",
-      });
-    }
+const insertReportDataInDB = async(req, res) => {
+  const { startDate, endDate, type } = req?.body;
+  const random_uuid = uuidv4();
+  try{
+    await insertValue(random_uuid, startDate, endDate, type, "", "processing");
 
-    const response = await getReportDetails(startDate, endDate, type);
+    console.log("process", process);
+    
+    process === "" && reportConsolidationController(random_uuid, startDate, endDate, type);
+
+    
+    
     
     res.status(200).json({
       status: 200,
       message: "Process Started!",
     });
 
-    console.log({response});
+    
 
-    if (response && type === "project") {
-      data = await generateReportByProjectService(response.downloadUrl);
-    } else if (response && type === "user") {
-      data = await generateReportByUserService(response.downloadUrl);
-    } else if (response && type === "category") {
-      data = await generateReportByCategoryService(response.downloadUrl);
-    } else {
-      // res.send({ status: 400, message: "something went wrong" });
-      console.log({ status: 400, message: "something went wrong" });
+  }catch(error){
+    console.log("error", error);
+    res.send({ status: 400, message: error });
+  }
+}
+
+
+
+const reportConsolidationController = async (id, startDate, endDate, type) => {
+
+  try {
+    process = 'started'
+
+    console.log("process", process);
+    
+
+    const data = await getAllReportsData();
+
+    console.log('data', data);
+
+    let arr = [...data]
+
+    while(arr.length !== 0){
+      const response = await getReportDetails(
+        arr[0].start_date,
+        arr[0].end_date,
+        arr[0].type
+      );
+
+      console.log("process", process);
+
+      if (response && arr[0].type === "project") {
+        await generateReportByProjectService(response.downloadUrl, arr[0].id);
+      } else if (response && arr[0].type === "user") {
+        await generateReportByUserService(response.downloadUrl, arr[0].id);
+      } else if (response && arr[0].type === "category") {
+        await generateReportByCategoryService(response.downloadUrl, arr[0].id);
+      } else {
+        console.log({
+          status: 400,
+          message: "Invalid type, type can only be project, user or category!",
+        });
+      }
+
+      arr.splice(0,1)
+      console.log('updated ar', arr);
+      const updatedData = await getAllReportsData();
+      console.log("updatedData", updatedData);
+      if(updatedData.length > 0){
+        arr.push(...updatedData);
+      } else {
+        process = ''
+      }
+      console.log('arrr', arr);
     }
   } catch (error) {
     console.log("error", error);
@@ -46,4 +90,5 @@ const reportConsolidationController = async (req, res) => {
 
 module.exports = {
   reportConsolidationController,
+  insertReportDataInDB,
 };

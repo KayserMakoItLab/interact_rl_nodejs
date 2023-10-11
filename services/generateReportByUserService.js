@@ -7,10 +7,9 @@ const { headers, subHeaders } = require("../constants");
 const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { sendMail } = require("./mail");
 const moment = require("moment");
+const { deleteReportDetails } = require("../db");
 
-const generateReportByUserService = async (
-  url
-) => {
+const generateReportByUserService = async (url, id) => {
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
@@ -151,6 +150,7 @@ console.log('url', url);
       }
     }
 
+    await deleteReportDetails(id);
     worksheet.getRow(1).alignment = { horizontal: "center" };
     workbook.xlsx
       .writeFile("output.xlsx")

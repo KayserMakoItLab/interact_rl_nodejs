@@ -8,8 +8,9 @@ const { getProjectDetailsById, getTaskDetailsById } = require("./apiService");
 const { parseCsvData } = require("../utils");
 const { sendMail } = require("./mail");
 const moment = require("moment");
+const { deleteReportDetails } = require("../db");
 
-const generateReportByProjectService = async (url) => {
+const generateReportByProjectService = async (url, id) => {
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
@@ -27,16 +28,16 @@ const generateReportByProjectService = async (url) => {
     const report = await parseCsvData();
 
     const result = report.reduce((agg, each) => {
-        if (!agg[each.ProjectId]) {
-          const { ProjectName, CustomerName, ...others } = each;
-          agg[each.ProjectId] = {
-            ProjectName,
-            CustomerName,
-            totalTracked: 0,
-            entries: 0,
-            task: {},
-          };
-        }
+      if (!agg[each.ProjectId]) {
+        const { ProjectName, CustomerName, ...others } = each;
+        agg[each.ProjectId] = {
+          ProjectName,
+          CustomerName,
+          totalTracked: 0,
+          entries: 0,
+          task: {},
+        };
+      }
       agg[each.ProjectId].totalTracked =
         agg[each.ProjectId].totalTracked + +each.TrackedTime;
       agg[each.ProjectId].entries = agg[each.ProjectId].entries + 1;
@@ -54,7 +55,7 @@ const generateReportByProjectService = async (url) => {
 
       return agg;
     }, {});
- 
+
     const i = 0;
     for (const [projectId, value] of Object.entries(result)) {
       const projectInfo = await getProjectDetailsById(projectId);
@@ -80,11 +81,10 @@ const generateReportByProjectService = async (url) => {
               (value) => value?.fieldLabel === "Category"
             )?.fieldValue;
 
-
             const reportRow = {
               groupBy: projectInfo?.projectName,
               number: projectId,
-              title: projectInfo?.projectName, 
+              title: projectInfo?.projectName,
               category: categoryValue,
               projectClient: projectInfo?.customer?.companyName,
               customStatus: projectInfo?.status,
@@ -120,7 +120,7 @@ const generateReportByProjectService = async (url) => {
       }
     }
 
-
+    await deleteReportDetails(id);
     worksheet.getRow(1).alignment = { horizontal: "center" };
     workbook.xlsx
       .writeFile("output.xlsx")
@@ -131,11 +131,10 @@ const generateReportByProjectService = async (url) => {
         console.error("Error:", error);
       });
 
-    return report ;
-
+    return report;
   } catch (error) {
-      console.error("Error downloading file:", error);
-      return error
+    console.error("Error downloading file:", error);
+    return error;
   }
 };
 
