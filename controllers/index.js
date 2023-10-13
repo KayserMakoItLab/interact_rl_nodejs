@@ -9,22 +9,35 @@ let process = "";
 
 const insertReportDataInDB = async(req, res) => {
   const { startDate, endDate, type } = req?.body;
-  console.log("req?.body", req?.body);
+  console.log("req?.body", req?.body, "+>", startDate, endDate, type);
   const random_uuid = uuidv4();
   try{
-    await insertValue(random_uuid, startDate, endDate, type, "", "processing");
+    if (req?.body){
+      await insertValue(
+        random_uuid,
+        startDate,
+        endDate,
+        type,
+        "",
+        "processing"
+      );
 
-    console.log("process", process);
-    
-    process === "" && reportConsolidationController(random_uuid, startDate, endDate, type);
+      console.log("process", process);
 
-    
-    
-    
-    res.status(200).json({
-      status: 200,
-      message: "Process Started!",
-    });
+      process === "" &&
+        reportConsolidationController(random_uuid, startDate, endDate, type);
+
+      res.status(200).json({
+        status: 200,
+        message: "Process Started!",
+      });
+    } else {
+      res.status(400).json({
+        status: 400,
+        message: "Body is empty!",
+      })
+    }
+      
 
     
 
