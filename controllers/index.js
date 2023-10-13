@@ -9,6 +9,7 @@ let process = "";
 
 const insertReportDataInDB = async(req, res) => {
   const { startDate, endDate, type } = req?.body;
+  console.log("req?.body", req?.body);
   const random_uuid = uuidv4();
   try{
     await insertValue(random_uuid, startDate, endDate, type, "", "processing");
