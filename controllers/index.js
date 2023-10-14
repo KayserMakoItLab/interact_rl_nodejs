@@ -1,4 +1,4 @@
-const { insertValue, getAllReportsData } = require("../db");
+const { insertValue, getAllReportsData, deleteReportDetails } = require("../db");
 const { generateReportByProjectService, generateReportByUserService } = require("../services");
 const { getReportDetails } = require("../services/apiService");
 const { generateReportByCategoryService } = require("../services/generateReportByCategoryService");
@@ -8,17 +8,17 @@ const { uuidv4 } = require("../utils");
 let process = "";
 
 const insertReportDataInDB = async(req, res) => {
-  const { startDate, endDate, type } = req?.body;
+  const { startDate, endDate, type, email } = req?.body;
   console.log("req?.body", req?.body, "+>", startDate, endDate, type);
   const random_uuid = uuidv4();
   try{
-    if (req?.body){
+    if (startDate && endDate && type && email) {
       await insertValue(
         random_uuid,
         startDate,
         endDate,
         type,
-        "",
+        email,
         "processing"
       );
 
@@ -35,7 +35,7 @@ const insertReportDataInDB = async(req, res) => {
       res.status(400).json({
         status: 400,
         message: "Body is empty!",
-      })
+      });
     }
       
 
@@ -66,26 +66,38 @@ const reportConsolidationController = async (id, startDate, endDate, type) => {
     while(arr.length !== 0){
       const response = await getReportDetails(
         arr[0].start_date,
-        arr[0].end_date,
-        arr[0].type
+        arr[0].end_date
       );
 
       console.log("process", process);
 
-      if (response && arr[0].type === "project") {
-        await generateReportByProjectService(response.downloadUrl, arr[0].id);
-      } else if (response && arr[0].type === "user") {
-        await generateReportByUserService(response.downloadUrl, arr[0].id);
-      } else if (response && arr[0].type === "category") {
-        await generateReportByCategoryService(response.downloadUrl, arr[0].id);
+      if (response && arr[0].type === "Time Record by Project") {
+        await generateReportByProjectService(
+          response.downloadUrl,
+          arr[0].id,
+          arr[0].email
+        );
+      } else if (response && arr[0].type === "Time Record by User") {
+        await generateReportByUserService(
+          response.downloadUrl,
+          arr[0].id,
+          arr[0].email
+        );
+      } else if (response && arr[0].type === "Time Record by Category") {
+        await generateReportByCategoryService(
+          response.downloadUrl,
+          arr[0].id,
+          arr[0].email
+        );
       } else {
         console.log({
           status: 400,
           message: "Invalid type, type can only be project, user or category!",
         });
+        await deleteReportDetails(arr[0].id);
       }
 
-      arr.splice(0,1)
+      arr.splice(0, arr.length);
       console.log('updated ar', arr);
       const updatedData = await getAllReportsData();
       console.log("updatedData", updatedData);

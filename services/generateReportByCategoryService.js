@@ -9,7 +9,7 @@ const { sendMail } = require("./mail");
 const moment = require("moment");
 const { deleteReportDetails } = require("../db");
 
-const generateReportByCategoryService = async (url, id) => {
+const generateReportByCategoryService = async (url, id, email) => {
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
@@ -188,7 +188,7 @@ const generateReportByCategoryService = async (url, id) => {
     workbook.xlsx
       .writeFile("output.xlsx")
       .then(async () => {
-        await sendMail();
+        await sendMail(email);
       })
       .catch((error) => {
         console.error("Error:", error);

@@ -9,7 +9,7 @@ const { sendMail } = require("./mail");
 const moment = require("moment");
 const { deleteReportDetails } = require("../db");
 
-const generateReportByUserService = async (url, id) => {
+const generateReportByUserService = async (url, id, email) => {
   try {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
@@ -18,7 +18,7 @@ const generateReportByUserService = async (url, id) => {
     worksheet.mergeCells("B1:L1");
     worksheet.mergeCells("M1:V1");
     worksheet.mergeCells("W1:Z1");
-console.log('url', url);
+    console.log('url', url);
     await downloadFile(
       url,
       path.resolve(__dirname, "../uploads", "myfile.csv")
@@ -155,7 +155,7 @@ console.log('url', url);
     workbook.xlsx
       .writeFile("output.xlsx")
       .then(async () => {
-        await sendMail();
+        await sendMail(email);
       })
       .catch((error) => {
         console.error("Error:", error);

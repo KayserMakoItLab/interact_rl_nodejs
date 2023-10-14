@@ -46,7 +46,7 @@ const getTaskDetailsById = async (taskId) => {
   return data;
 };
 
-const getReportDetails = async(startDate, endDate, type) => {
+const getReportDetails = async(startDate, endDate) => {
     console.log(
       "==>",
       `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(

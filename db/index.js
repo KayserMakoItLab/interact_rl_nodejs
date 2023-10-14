@@ -25,20 +25,20 @@ const doesTableExist = (tableName) => {
 
 const createTable = () => {
     db.serialize(() => {
-        db.run(`CREATE TABLE report(id, start_date, end_date, type, username, status)`)
+        db.run(`CREATE TABLE report(id, start_date, end_date, type, email, status)`)
     })
 }
 
 
-const insertValue = async(id, startDate, endDate, type, userName, status) => {
-    const query = `INSERT INTO report(id, start_date, end_date, type, username, status)
+const insertValue = async (id, startDate, endDate, type, email, status) => {
+  const query = `INSERT INTO report(id, start_date, end_date, type, email, status)
                     VALUES (?,?,?,?,?,?)`;
-    await db.run(query, [id, startDate, endDate, type, userName, status], (err)=>{
-        if(err) return console.error(err.message)
+  await db.run(query, [id, startDate, endDate, type, email, status], (err) => {
+    if (err) return console.error(err.message);
 
-        console.log('new row created!')
-    });
-}
+    console.log("new row created!");
+  });
+};
 
 const getAllReportsData = () => {
     return new Promise((resolve, reject) => {

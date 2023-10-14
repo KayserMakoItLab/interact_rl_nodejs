@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
 
-const sendMail = async () => {
+const sendMail = async (email) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -13,11 +13,7 @@ const sendMail = async () => {
 
   const mailOptions = {
     from: process.env.EMAIL_FROM,
-    to: [
-      "kayser@makoitlab.com",
-      "marimuthu.gouthaman@makoitlab.com ",
-      "raja@geekfactory.tech",
-    ],
+    to: `${email}`,
     subject: "Consolidated Report",
     text: "Hi, Download your consolidated report below",
     attachments: [
