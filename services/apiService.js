@@ -59,12 +59,12 @@ const getReportDetails = async(startDate, endDate) => {
       .get(
         `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(
           endDate
-        ).format("YYYY-MM-DD")}&match&startDate=${moment(startDate).format(
-          "YYYY-MM-DD"
-        )}`,
+        ).format("YYYY-MM-DD")}&includeDeleted=false&startDate=${moment(
+          startDate
+        ).format("YYYY-MM-DD")}`,
         {
           headers: {
-            "api-key": process.env.ROCKLANE_API_KEY
+            "api-key": process.env.ROCKLANE_API_KEY,
           },
         }
       )
