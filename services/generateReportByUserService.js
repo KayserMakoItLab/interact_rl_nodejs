@@ -15,9 +15,8 @@ const generateReportByUserService = async (url, id, email) => {
     const worksheet = workbook.addWorksheet("Sheet 1");
     worksheet.addRow(headers);
     worksheet.addRow(subHeaders);
-    worksheet.mergeCells("B1:L1");
-    worksheet.mergeCells("M1:V1");
-    worksheet.mergeCells("W1:Z1");
+    worksheet.mergeCells("B1:D1");
+    worksheet.mergeCells("F1:K1");
     console.log('url', url);
     await downloadFile(
       url,
@@ -96,46 +95,46 @@ const generateReportByUserService = async (url, id, email) => {
               if (i % 100 == 0) {
                 await new Promise((res, rej) => setTimeout(() => res(), 1000));
               }
-              const completedDate = moment(
-                new Date(taskInfo?.completedAt)
-              ).format("YYYY-MM-DD");
-              const managerName = projectInfo?.createdBy?.firstName
-                ? projectInfo?.createdBy?.firstName +
-                  " " +
-                  projectInfo?.createdBy?.lastName
-                : "";
+              // const completedDate = moment(
+              //   new Date(taskInfo?.completedAt)
+              // ).format("YYYY-MM-DD");
+              // const managerName = projectInfo?.createdBy?.firstName
+              //   ? projectInfo?.createdBy?.firstName +
+              //     " " +
+              //     projectInfo?.createdBy?.lastName
+              //   : "";
 
-              const categoryValue = (projectInfo?.fields || []).find(
-                (value) => value?.fieldLabel === "Category"
-              )?.fieldValue;
+              // const categoryValue = (projectInfo?.fields || []).find(
+              //   (value) => value?.fieldLabel === "Category"
+              // )?.fieldValue;
 
               const reportRow = {
                 groupBy: user,
                 number: projectId,
                 title: projectInfo?.projectName,
-                category: categoryValue,
+                // category: categoryValue,
                 projectClient: projectInfo?.customer?.companyName,
-                customStatus: projectInfo?.status,
-                manager: managerName,
-                projectStart: projectInfo?.startDate,
-                projectDue: projectInfo?.dueDate,
-                taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
-                projectTotalTimeSpent: projectInfo?.metrics?.trackedHours,
-                projectFilteredTimeSpent: item?.userTrackedTime,
-                order: taskInfo?.taskId,
+                // customStatus: projectInfo?.status,
+                // manager: managerName,
+                // projectStart: projectInfo?.startDate,
+                // projectDue: projectInfo?.dueDate,
+                // taskTimeAllocated: projectInfo?.metrics?.totalAllocatedHours,
+                // projectTotalTimeSpent: projectInfo?.metrics?.trackedHours,
+                // projectFilteredTimeSpent: item?.userTrackedTime,
+                // order: taskInfo?.taskId,
                 taskName: taskInfo?.taskName,
-                contacts: taskInfo?.assignee?.users[0]?.userName,
-                status: taskInfo?.status,
-                taskStart: taskInfo?.startDate,
-                taskDue: taskInfo?.dueDate,
-                completed:
-                  completedDate === "Invalid date" ? "" : completedDate,
-                timeAllocated: entry.Effort,
-                taskTotalTimeSpent:
-                  taskInfo?.effort && taskInfo?.effort > 0
-                    ? taskInfo?.effort / 60
-                    : 0,
-                taskFilteredTimeSpent: entries.total,
+                // contacts: taskInfo?.assignee?.users[0]?.userName,
+                // status: taskInfo?.status,
+                // taskStart: taskInfo?.startDate,
+                // taskDue: taskInfo?.dueDate,
+                // completed:
+                //   completedDate === "Invalid date" ? "" : completedDate,
+                // timeAllocated: entry.Effort,
+                // taskTotalTimeSpent:
+                //   taskInfo?.effort && taskInfo?.effort > 0
+                //     ? taskInfo?.effort / 60
+                //     : 0,
+                // taskFilteredTimeSpent: entries.total,
                 timeRecords: entry.Notes,
                 timer: entry.Date,
                 staff: entry.UserName,
