@@ -56,11 +56,11 @@ const generateReportByCategoryService = async (url, id, email) => {
 
 
      const result = filteredData.reduce((agg, each) => {
-       if (!agg[each.catergoryFieldName]) {
-         agg[each.catergoryFieldName] = {
-           users: {},
-         };
-       }
+        if (!agg[each.catergoryFieldName]) {
+          agg[each.catergoryFieldName] = {
+            users: {},
+          };
+        }
        if (!agg[each.catergoryFieldName].users[each.UserName]) {
          agg[each.catergoryFieldName].users[each.UserName] = {
            trackedTimes: 0,
@@ -85,7 +85,7 @@ const generateReportByCategoryService = async (url, id, email) => {
     headerNames.unshift('Group By');
     worksheet.addRow(headerNames);
 
-    let i = 1
+    let i = 2
     for (const [value, item] of Object.entries(result)) {
       if (value !== "undefined") {
         for (const [user, time] of Object.entries(item.users)) {
