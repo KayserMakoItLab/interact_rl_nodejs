@@ -231,6 +231,17 @@ const generateReportByCategoryService = async (url, id, email) => {
     //   }
     // }
 
+    for (let rowNumber = worksheet.rowCount; rowNumber >= 1; rowNumber--) {
+      const row = worksheet.getRow(rowNumber);
+      const values = row.values;
+      const isEmpty = values.every((value) => value === null || value === "");
+
+      if (isEmpty) {
+        worksheet.spliceRows(rowNumber, 1);
+      }
+    }
+
+
     await deleteReportDetails(id);
     worksheet.getRow(1).alignment = { horizontal: "center" };
     workbook.xlsx
