@@ -241,6 +241,49 @@ const generateReportByCategoryService = async (url, id, email) => {
       }
     }
 
+    const columnCount = worksheet.actualColumnCount;
+
+    let lastColumn;
+    for (let col = columnCount; col >= 1; col--) {
+      const column = worksheet.getColumn(col);
+      const columnValues = column.values;
+
+      if (columnValues.some(value => value !== undefined && value !== null)) {
+        lastColumn = col;
+        break;
+      }
+    }
+
+    if (lastColumn) {
+      const lastColumnLetter = convertToLetter(lastColumn);
+      console.log(`Last column with data: ${lastColumnLetter}`);
+    } else {
+      console.log('No data found in the sheet.');
+    }
+
+    const columnSums = ['Total'];
+
+    worksheet.columns.forEach((column, columnIndex) => {
+      let sum = 0;
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        if (!isNaN(cell.value)) {
+          console.log("cell.value", cell.value);
+          sum += typeof cell.value === 'number' ? parseFloat(cell.value) : 0;
+        }
+      });
+      columnSums.push(sum);
+    });
+
+    columnSums.splice(1, 1);
+    
+    worksheet.addRow(columnSums);
+
+    const lastRow = worksheet.lastRow;
+
+    lastRow.eachCell({ includeEmpty: false }, (cell) => {
+      cell.font = { bold: true };
+    });
+
 
     await deleteReportDetails(id);
     worksheet.getRow(1).alignment = { horizontal: "center" };
@@ -263,6 +306,17 @@ const generateReportByCategoryService = async (url, id, email) => {
 function getCellName(rowNumber, colNumber) {
   const columnName = String.fromCharCode(64 + colNumber);
   return columnName + rowNumber;
+}
+
+function convertToLetter(columnNumber) {
+  let temp,
+    letter = "";
+  while (columnNumber > 0) {
+    temp = (columnNumber - 1) % 26;
+    letter = String.fromCharCode(65 + temp) + letter;
+    columnNumber = (columnNumber - temp - 1) / 26;
+  }
+  return letter;
 }
 
 module.exports = {
