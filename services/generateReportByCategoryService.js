@@ -42,11 +42,10 @@ const generateReportByCategoryService = async (url, id, email) => {
           result.ProjectId !== null) && (result.Billable === "true"))
          ) {
           const projectInfo = await getProjectDetailsById(result.ProjectId);
-          console.log("projectInfo?.fields", result.Billable);
           const categoryValue = await (projectInfo?.fields || []).find(
             (value) => value?.fieldLabel === "Category"
           )?.fieldValue;
-          return { catergoryFieldName: categoryValue, ...result }; // Return the categoryValue
+          return { catergoryFieldName: categoryValue === undefined ? 'No Category' : categoryValue, ...result }; // Return the categoryValue
         }
         return null; // Return null for cases where the condition isn't met
       })
@@ -54,6 +53,7 @@ const generateReportByCategoryService = async (url, id, email) => {
 
     const filteredData = data.filter((item) => item !== null);
 
+    filteredData.reverse();
 
      const result = filteredData.reduce((agg, each) => {
         if (!agg[each.catergoryFieldName]) {
@@ -75,11 +75,9 @@ const generateReportByCategoryService = async (url, id, email) => {
 
      let headerNames = []
      for (const [value, item] of Object.entries(result)) {
-      if (value !== "undefined") {
         for (const [user, time] of Object.entries(item.users)) {
           !headerNames.includes(user) && headerNames.push(user);
         }
-      } 
     }
 
     headerNames.unshift('Group By');
@@ -87,7 +85,6 @@ const generateReportByCategoryService = async (url, id, email) => {
 
     let i = 2
     for (const [value, item] of Object.entries(result)) {
-      if (value !== "undefined") {
         for (const [user, time] of Object.entries(item.users)) {
           worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
               row.eachCell((cell, colNumber) => {
@@ -104,7 +101,6 @@ const generateReportByCategoryService = async (url, id, email) => {
                 }
               });
           });
-        }
       }
       i++;
     }
@@ -231,15 +227,15 @@ const generateReportByCategoryService = async (url, id, email) => {
     //   }
     // }
 
-    for (let rowNumber = worksheet.rowCount; rowNumber >= 1; rowNumber--) {
-      const row = worksheet.getRow(rowNumber);
-      const values = row.values;
-      const isEmpty = values.every((value) => value === null || value === "");
+    // for (let rowNumber = worksheet.rowCount; rowNumber >= 1; rowNumber--) {
+    //   const row = worksheet.getRow(rowNumber);
+    //   const values = row.values;
+    //   const isEmpty = values.every((value) => value === null || value === "");
 
-      if (isEmpty) {
-        worksheet.spliceRows(rowNumber, 1);
-      }
-    }
+    //   if (isEmpty) {
+    //     worksheet.spliceRows(rowNumber, 1);
+    //   }
+    // }
 
     const columnCount = worksheet.actualColumnCount;
 
@@ -256,7 +252,6 @@ const generateReportByCategoryService = async (url, id, email) => {
 
     if (lastColumn) {
       const lastColumnLetter = convertToLetter(lastColumn);
-      console.log(`Last column with data: ${lastColumnLetter}`);
     } else {
       console.log('No data found in the sheet.');
     }
@@ -267,7 +262,6 @@ const generateReportByCategoryService = async (url, id, email) => {
       let sum = 0;
       column.eachCell({ includeEmpty: true }, (cell) => {
         if (!isNaN(cell.value)) {
-          console.log("cell.value", cell.value);
           sum += typeof cell.value === 'number' ? parseFloat(cell.value) : 0;
         }
       });
