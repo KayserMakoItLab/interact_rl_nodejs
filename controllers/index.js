@@ -59,8 +59,6 @@ const reportConsolidationController = async (id, startDate, endDate, type) => {
 
     const data = await getAllReportsData();
 
-    console.log('data', data);
-
     let arr = [...data]
 
     while(arr.length !== 0){
