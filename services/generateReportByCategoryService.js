@@ -93,7 +93,7 @@ const generateReportByCategoryService = async (url, id, email) => {
      for (const [value, item] of Object.entries(result)) {
         for (const [user, time] of Object.entries(item.users)) {
           !headerNames.includes(user) && headerNames.push(user);
-        }
+        } 
     }
 
     headerNames.unshift('Group By');
