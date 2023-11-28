@@ -47,15 +47,15 @@ const generateReportByCategoryService = async (url, id, email) => {
           )?.fieldValue;
           return { catergoryFieldName: categoryValue === undefined ? 'No Category' : categoryValue, ...result }; // Return the categoryValue
         }
-        return null; // Return null for cases where the condition isn't met
+        return { catergoryFieldName:'Non Projects', ...result };
       })
     );
 
-    const filteredData = data.filter((item) => item !== null);
+    // const filteredData = data.filter((item) => item !== null);
 
-    filteredData.reverse();
+    data.reverse();
 
-     const result = filteredData.reduce((agg, each) => {
+     const result = data.reduce((agg, each) => {
         if (!agg[each.catergoryFieldName]) {
           agg[each.catergoryFieldName] = {
             users: {},
@@ -72,6 +72,22 @@ const generateReportByCategoryService = async (url, id, email) => {
 
        return agg;
      }, {});
+
+     const moveKeysToEnd = (obj, keys) => {
+       keys.forEach((key) => {
+         if (obj[key]) {
+           const value = obj[key];
+           delete obj[key];
+           obj[key] = value;
+         }
+       });
+     };
+
+     const keysToMoveToEnd = ["No Category", "Non Projects"];
+
+     moveKeysToEnd(result, keysToMoveToEnd);
+
+     console.log("result", result);
 
      let headerNames = []
      for (const [value, item] of Object.entries(result)) {
