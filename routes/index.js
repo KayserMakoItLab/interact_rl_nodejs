@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
-const { reportConsolidationController } = require("../controllers");
+const {  insertReportDataInDB } = require("../controllers");
+const { validateApiKey } = require("../services/middleware");
 
 
 const router = express.Router();
@@ -16,7 +17,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+router.get("/", (req, res) => res.sendStatus(200));
 
-router.post( "/upload", upload.single('csvFile'), reportConsolidationController);
+router.get("/upload", (req, res) => res.sendStatus(200));
+
+router.post("/upload", validateApiKey, upload.single("csvFile"), insertReportDataInDB);
 
 module.exports = router;

@@ -46,7 +46,7 @@ const getTaskDetailsById = async (taskId) => {
   return data;
 };
 
-const getReportDetails = async(startDate, endDate, type) => {
+const getReportDetails = async(startDate, endDate) => {
     console.log(
       "==>",
       `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(
@@ -59,12 +59,12 @@ const getReportDetails = async(startDate, endDate, type) => {
       .get(
         `${process.env.ROCKLANE_API_V1}time-entries/export?&endDate=${moment(
           endDate
-        ).format("YYYY-MM-DD")}&match&startDate=${moment(startDate).format(
-          "YYYY-MM-DD"
-        )}`,
+        ).format("YYYY-MM-DD")}&includeDeleted=false&startDate=${moment(
+          startDate
+        ).format("YYYY-MM-DD")}`,
         {
           headers: {
-            "api-key": process.env.ROCKLANE_API_KEY
+            "api-key": process.env.ROCKLANE_API_KEY,
           },
         }
       )
