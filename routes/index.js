@@ -17,6 +17,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+router.get("/", (req, res) => res.sendStatus(200));
+
+router.get("/upload", (req, res) => res.sendStatus(200));
 
 router.post("/upload", validateApiKey, upload.single("csvFile"), insertReportDataInDB);
 

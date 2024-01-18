@@ -32,6 +32,8 @@ app.use(
   })
 );
 
+app.get('/', (req, res)=> res.sendStatus(200))
+
 app.use("/v1/api", routes);
 
 app.listen(port, () => {
